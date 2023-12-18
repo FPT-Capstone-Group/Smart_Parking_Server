@@ -92,7 +92,8 @@ router.put("/cards/:cardId", cardController.updateCard);
 router.get("/active-cards", cardController.getAllActiveCards);
 router.put("/cards/revoke", cardController.revokeCardByPlateNumber);
 router.post("/cards/assign", cardController.assignCardToBike);
-
+router.put("/cards/deactive/:cardId", cardController.deactiveCard);
+router.put("/cards/active/:cardId", cardController.activeCard);
 //Notification
 router.post("/notifications/send", notificationController.sendNotification);
 

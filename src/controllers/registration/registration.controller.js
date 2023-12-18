@@ -565,8 +565,8 @@ const deactivateRegistration = async (req, res) => {
     // reset bike for card
     bike.cardId = null;
     await bike.save({ transaction: t });
-    // Update the card status to "active"
-    card.status = "active";
+    // Update the card status to "inactive", must go retrieve the card
+    card.status = "inactive";
     await card.save({ transaction: t });
     // Update the status to "Inactive"
     registration.status = "inactive";

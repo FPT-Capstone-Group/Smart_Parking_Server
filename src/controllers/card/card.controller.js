@@ -273,6 +273,63 @@ const assignCardToBike = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+// Admin brute force deactive card
+const deactiveCard = async (req, res) => {
+  try {
+    const { cardId } = req.params;
+
+    // Find the card by ID
+    const card = await Card.findByPk(cardId);
+    if (!card) {
+      return errorResponse(req, res, "Card not found", 404);
+    }
+
+    // Disassociate the card from the bike
+    const bikeId = card.bikeId;
+    if (bikeId !== null) {
+      const bike = await Bike.findByPk(bikeId);
+      if (bike) {
+        bike.cardId = null;
+        await bike.save();
+      }
+    }
+
+    // Update the card status to "inactive"
+    card.status = "inactive";
+    await card.save();
+
+    return successResponse(req, res, "Card deactivated successfully", 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+// Admin  active card
+const activeCard = async (req, res) => {
+  try {
+    const { cardId } = req.params;
+
+    // Find the card by ID
+    const card = await Card.findByPk(cardId);
+    if (!card) {
+      return errorResponse(req, res, "Card not found", 404);
+    }
+
+    // Check if the card status is "inactive"
+    if (card.status !== "inactive") {
+      return errorResponse(req, res, "Card is not inactive", 400);
+    }
+
+    // Activate the card
+    card.status = "active";
+    await card.save();
+
+    return successResponse(req, res, "Card activated successfully", 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 
 module.exports = {
   createCard,
@@ -283,4 +340,6 @@ module.exports = {
   getAllCards,
   getAllActiveCards,
   assignCardToBike,
+  deactiveCard,
+  activeCard,
 };
