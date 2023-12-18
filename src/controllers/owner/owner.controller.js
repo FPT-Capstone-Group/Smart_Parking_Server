@@ -1,5 +1,5 @@
 // owner.controller.js
-const { Owner, Bike } = require("../../models");
+const { Owner, Bike, UserHistory } = require("../../models");
 const {
   successResponse,
   errorResponse,
@@ -166,6 +166,7 @@ const getOwnersByUsersPlateNumber = async (req, res) => {
 //User
 const activateOwner = async (req, res) => {
   const { ownerId } = req.body;
+  const userId = req.user.userId;
   try {
     const updatingOwner = await Owner.findByPk(ownerId);
     if (!updatingOwner) {
@@ -190,6 +191,14 @@ const activateOwner = async (req, res) => {
       },
     });
     if (totalActiveOwners >= 4) {
+    const totalActiveOwners = await Owner.count({
+      where:{
+        isActive: {[Op.eq]: true},
+        bikeId: updatingOwner.bikeId
+      }
+    })
+    if (totalActiveOwners >= 4){
+
       return errorResponse(
         req,
         res,
@@ -198,8 +207,13 @@ const activateOwner = async (req, res) => {
       );
     }
 
-    if (updatingOwner.isActive) {
-      return successResponse(req, res, `${ownerId} is already active`, 200);
+    if(updatingOwner.isActive){
+      return successResponse(
+          req,
+          res,
+          `${ownerId} is already active`,
+          400
+      );
     }
     updatingOwner.isActive = true;
     await updatingOwner.save();
@@ -226,8 +240,13 @@ const deactivateOwner = async (req, res) => {
       return errorResponse(req, res, `Cannot deactivate the bike's owner`, 400);
     }
 
-    if (!updatingOwner.isActive) {
-      return successResponse(req, res, `${ownerId} is already inactive`, 200);
+    if(!updatingOwner.isActive){
+      return successResponse(
+          req,
+          res,
+          `${ownerId} is already inactive`,
+          400
+      );
     }
     updatingOwner.isActive = false;
     await updatingOwner.save();

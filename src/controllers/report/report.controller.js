@@ -60,7 +60,8 @@ const getTotalGuestIncome = async (req, res) => {
                 checkoutTime: {[Op.between]: [dateStart, dateEnd]}
             },
         });
-
+        if (!guestIncome)
+            return successResponse(req, res, 0, 201);
 
         return successResponse(req, res, guestIncome, 201);
     } catch (error) {
